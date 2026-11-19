@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Connecta Pinhais</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Lora:wght@400;600;700&family=Nunito:wght@500;700;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet" />
+<style>
+/* ───── Temas ───── */
+:root, [data-theme='adulto'] {
+  --bg: #f3f5f8; --card: #fff; --text: #1f2933; --muted: #5c6b7a; --line: #d9e0e8;
+  --primary: #1b4f72; --on-primary: #fff; --accent: #2e86c1; --danger: #b3261e;
+  --font: 'DM Sans', system-ui, sans-serif; --fs: 16px; --radius: 12px; --gap: 12px; --lh: 1.45;
+}
+[data-theme='crianca'] {
+  --bg: #fff6dc; --card: #fff; --text: #3b2a14; --muted: #7a5c33; --line: #ffd98a;
+  --primary: #ff7a00; --on-primary: #fff; --accent: #00a6c8; --danger: #d6336c;
+  --font: 'Nunito', system-ui, sans-serif; --fs: 18px; --radius: 26px; --gap: 16px; --lh: 1.5;
+}
+[data-theme='adolescente'] {
+  --bg: #0c0e1a; --card: #161a2e; --text: #e9eeff; --muted: #9aa6d0; --line: #2a3158;
+  --primary: #00e5ff; --on-primary: #06121a; --accent: #ff2e97; --danger: #ff5c7a;
+  --font: 'Rajdhani', system-ui, sans-serif; --fs: 18px; --radius: 8px; --gap: 12px; --lh: 1.35;
+}
+[data-theme='senior'] {
+  --bg: #fffdf6; --card: #fff; --text: #111; --muted: #333; --line: #222;
+  --primary: #0b3c5d; --on-primary: #fff; --accent: #7a3e00; --danger: #9b1c1c;
+  --font: 'Lora', Georgia, serif; --fs: 21px; --radius: 8px; --gap: 18px; --lh: 1.6;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: var(--fs); }
+body { background: var(--bg); color: var(--text); font-family: var(--font); line-height: var(--lh); -webkit-tap-highlight-color: transparent; }
+button, input { font: inherit; color: inherit; }
+button { cursor: pointer; }
+:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+h1, h2, h3 { line-height: 1.2; }
+
+/* ───── estruturacoes ───── */
+.app { max-width: 640px; margin: 0 auto; min-height: 100vh; padding-bottom: 5.5rem; }
+.top { background: var(--primary); color: var(--on-primary); padding: 1rem 1.1rem; }
+.top h1 { font-size: 1.3rem; }
+.top p { opacity: .85; font-size: .9rem; }
+.content { padding: var(--gap); display: grid; gap: var(--gap); align-content: start; }
+.card { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 1rem; }
+[data-theme='senior'] .card { border-width: 2px; }
+[data-theme='adolescente'] .card { box-shadow: 0 0 0 1px var(--line), 0 0 18px rgba(0, 229, 255, .08); }
+.empty { text-align: center; padding: 2rem 1rem; color: var(--muted); }
+
+/* ───── Navegação inferior ───── */
+.nav { position: fixed; bottom: 0; left: 0; right: 0; max-width: 640px; margin: 0 auto; display: flex; background: var(--card); border-top: 2px solid var(--line); }
+.nav button { flex: 1; display: grid; gap: 2px; justify-items: center; padding: .6rem 0 .7rem; background: none; border: 0; font-size: .8rem; color: var(--muted); }
+.nav button span { font-size: 1.4rem; }
+.nav button[aria-current='page'] { color: var(--primary); font-weight: 700; box-shadow: inset 0 3px 0 var(--primary); }
+[data-theme='adolescente'] .nav button[aria-current='page'] { color: var(--primary); }
+
+/* ───── eventos ───── */
+.search { width: 100%; padding: .7rem .9rem; border: 2px solid var(--line); border-radius: var(--radius); background: var(--card); }
+.chips { display: flex; gap: .5rem; overflow-x: auto; padding-bottom: 2px; }
+.chip { flex: none; padding: .4rem .9rem; border-radius: 999px; border: 2px solid var(--line); background: var(--card); }
+.chip.on { background: var(--primary); color: var(--on-primary); border-color: var(--primary); font-weight: 700; }
+.event { display: flex; gap: .9rem; width: 100%; text-align: left; align-items: flex-start; }
+.event.dim { opacity: .6; }
+.event .emoji { font-size: 2.2rem; line-height: 1; }
+.event .info { display: grid; gap: 2px; min-width: 0; }
+.event strong { font-size: 1.05rem; }
+.event .info > span { color: var(--muted); font-size: .9rem; }
+.tags { display: flex; flex-wrap: wrap; gap: .35rem; margin-top: .3rem; }
+.tags i { font-style: normal; font-size: .75rem; padding: .1rem .55rem; border-radius: 999px; border: 1px solid var(--line); }
+.tags .ok { background: var(--primary); color: var(--on-primary); border-color: var(--primary); }
+.tags .warn { border-color: var(--danger); color: var(--danger); }
+
+.detail { display: grid; gap: var(--gap); }
+.detail dl { display: grid; grid-template-columns: auto 1fr; gap: .3rem 1rem; }
+.detail dt { color: var(--muted); }
+.detail dd { font-weight: 600; }
+.pair { display: contents; }
+.link { justify-self: start; background: none; border: 0; color: var(--primary); font-weight: 700; padding: .2rem 0; }
+.stack { display: grid; gap: .6rem; }
+
+/* ───── botoes forms ───── */
+.btn { padding: .8rem 1.1rem; border-radius: var(--radius); border: 2px solid var(--primary); background: var(--primary); color: var(--on-primary); font-weight: 700; }
+.btn.ghost { background: transparent; color: var(--text); border-color: var(--line); }
+.btn.danger { background: transparent; color: var(--danger); border-color: var(--danger); }
+.btn:disabled { opacity: .5; cursor: not-allowed; }
+
+.auth { max-width: 520px; margin: 0 auto; padding: 1.5rem var(--gap) 3rem; display: grid; gap: var(--gap); }
+.brand h1 { font-size: 1.9rem; color: var(--primary); }
+.brand p { color: var(--muted); }
+.tabs { display: flex; border-bottom: 2px solid var(--line); }
+.tabs button { flex: 1; padding: .7rem; background: none; border: 0; border-bottom: 4px solid transparent; margin-bottom: -2px; font-weight: 700; color: var(--muted); }
+.tabs button[aria-selected='true'] { color: var(--primary); border-bottom-color: var(--primary); }
+.form { display: grid; gap: var(--gap); }
+.field { display: grid; gap: .25rem; }
+.field span { font-size: .85rem; color: var(--muted); }
+.field input { width: 100%; padding: .7rem .8rem; border: 2px solid var(--line); border-radius: calc(var(--radius) - 2px); background: var(--bg); }
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: var(--gap); }
+.grid2.wide { grid-template-columns: 3fr 1fr; }
+fieldset { border: 2px dashed var(--accent); border-radius: var(--radius); padding: .9rem; display: grid; gap: var(--gap); }
+legend { padding: 0 .4rem; font-weight: 700; color: var(--accent); }
+.error { color: var(--danger); font-weight: 700; }
+.note { padding: .6rem .8rem; border-left: 4px solid var(--accent); background: var(--bg); font-size: .9rem; }
+.hint { font-size: .85rem; color: var(--muted); }
+
+/* ─────  LGPD e aviso ───── */
+.overlay { position: fixed; inset: 0; background: rgba(0, 0, 0, .6); display: grid; place-items: center; padding: 1rem; z-index: 10; }
+.modal { background: var(--card); border: 2px solid var(--line); border-radius: var(--radius); padding: 1.1rem; width: 100%; max-width: 520px; max-height: 92vh; display: grid; gap: .8rem; }
+.terms { overflow-y: auto; max-height: 45vh; border: 1px solid var(--line); border-radius: 8px; padding: .8rem; display: grid; gap: .8rem; font-size: .9rem; }
+.terms h3 { font-size: .95rem; }
+.row { display: flex; gap: .6rem; justify-content: flex-end; }
+.toast { position: fixed; left: 50%; bottom: 6rem; transform: translateX(-50%); background: var(--text); color: var(--bg); padding: .7rem 1.1rem; border-radius: 999px; font-size: .9rem; z-index: 20; max-width: 90vw; text-align: center; }
+.auth ~ .toast { bottom: 1.5rem; }
+
+@media (max-width: 380px) {
+  .grid2, .grid2.wide { grid-template-columns: 1fr; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .btn, .chip { transition: transform .1s; }
+  .btn:active:not(:disabled) { transform: scale(.98); }
+}
+
+</style>
+</head>
+<body>
+<div id="root"><p style="padding:2rem;font-family:sans-serif">Carregando… (precisa de internet na primeira abertura)</p></div>
+<script src="https://cdn.jsdelivr.net/npm/react@18.3.1/umd/react.production.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/react-dom@18.3.1/umd/react-dom.production.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@babel/standalone@7.24.0/babel.min.js"></script>
+<script type="text/babel">
+const { useEffect, useRef, useState } = React
+// Idade a partir de 'AAAA-MM-DD' (sem fuso horário, evita erro de 1 dia)
+function ageFrom(iso) {
+  if (!iso) return 0
+  const [y, m, d] = iso.split('-').map(Number)
+  const now = new Date()
+  let age = now.getFullYear() - y
+  const month = now.getMonth() + 1
+  if (month < m || (month === m && now.getDate() < d)) age--
+  return age
+}
+
+const MIN_AGE = 7
+
+function bandFor(age) {
+  if (age < 13) return 'crianca'
+  if (age < 18) return 'adolescente'
+  if (age <= 50) return 'adulto'
+  return 'senior'
+}
+
+const BANDS = {
+  crianca: ' Criança',
+  adolescente: ' Adolescente',
+  adulto: 'Adulto',
+  senior: ' Sênior'
+}
+
+const digits = (s) => String(s || '').replace(/\D/g, '')
+
+function validCPF(value) {
+  const c = digits(value)
+  if (c.length !== 11 || /^(\d)\1+$/.test(c)) return false
+  for (const t of [9, 10]) {
+    let sum = 0
+    for (let i = 0; i < t; i++) sum += Number(c[i]) * (t + 1 - i)
+    const dv = ((sum * 10) % 11) % 10
+    if (dv !== Number(c[t])) return false
+  }
+  return true
+}
+
+const maskCPF = (v) =>
+  digits(v).slice(0, 11)
+    .replace(/(\d{3})(\d)/, '$1.$2')
+    .replace(/(\d{3})(\d)/, '$1.$2')
+    .replace(/(\d{3})(\d{1,2})$/, '$1-$2')
+
+const maskPhone = (v) => {
+  const d = digits(v).slice(0, 11)
+  if (d.length <= 10) return d.replace(/(\d{2})(\d)/, '($1) $2').replace(/(\d{4})(\d)/, '$1-$2')
+  return d.replace(/(\d{2})(\d)/, '($1) $2').replace(/(\d{5})(\d)/, '$1-$2')
+}
+
+const maskCEP = (v) => digits(v).slice(0, 8).replace(/(\d{5})(\d)/, '$1-$2')
+
+const validEmail = (v) => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v)
+
+const fmtDate = (iso) =>
+  new Date(iso).toLocaleString('pt-BR', {
+    weekday: 'short', day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit'
+  })
+
+// Eventos de EXEMPLO. As datas são relativas a hoje, então sempre aparecem como "próximos".
+// Troque por dados reais (API da Prefeitura) em Api.listEvents() quando houver integração.
+const at = (days, hour, min = 0) => {
+  const d = new Date()
+  d.setDate(d.getDate() + days)
+  d.setHours(hour, min, 0, 0)
+  return d.toISOString()
+}
+
+const CATEGORIES = ['Todos', 'Esporte', 'Cultura', 'Saúde', 'Educação', 'Lazer']
+
+const EVENTS = [
+  { id: 'ev01', title: 'Caminhada em grupo', category: 'Esporte', emoji: '', date: at(2, 8), place: 'Parque Municipal', capacity: 40, ageMin: 7, ageMax: 120, description: 'Caminhada de 3 km em ritmo leve, com alongamento no início e no fim. Leve água e use tênis.' },
+  { id: 'ev02', title: 'Oficina de teatro infantil', category: 'Cultura', emoji: '', date: at(3, 14), place: 'Centro Cultural', capacity: 20, ageMin: 7, ageMax: 12, description: 'Jogos teatrais, improviso e criação de pequenas cenas para crianças.' },
+  { id: 'ev03', title: 'Campeonato de futsal jovem', category: 'Esporte', emoji: '', date: at(5, 9), place: 'Ginásio Municipal', capacity: 60, ageMin: 13, ageMax: 17, description: 'Times de 5 jogadores. Inscrição individual, a organização monta as equipes.' },
+  { id: 'ev04', title: 'Aferição de pressão e glicemia', category: 'Saúde', emoji: '', date: at(4, 9), place: 'Unidade de Saúde Central', capacity: 50, ageMin: 18, ageMax: 120, description: 'Atendimento gratuito com equipe de enfermagem. Traga documento com foto.' },
+  { id: 'ev05', title: 'Curso de informática básica', category: 'Educação', emoji: '', date: at(6, 19), place: 'Biblioteca Municipal', capacity: 25, ageMin: 18, ageMax: 120, description: 'Primeiros passos com computador, e-mail e internet. Turma para iniciantes.' },
+  { id: 'ev06', title: 'Cinema na praça', category: 'Lazer', emoji: '', date: at(7, 19, 30), place: 'Praça Central', capacity: 120, ageMin: 7, ageMax: 120, description: 'Sessão ao ar livre, classificação livre. Leve cadeira ou manta.' },
+  { id: 'ev07', title: 'Hidroginástica para a melhor idade', category: 'Saúde', emoji: '', date: at(8, 10), place: 'Centro Esportivo Municipal', capacity: 30, ageMin: 51, ageMax: 120, description: 'Aula de baixo impacto com instrutor. Atestado médico é recomendado.' },
+  { id: 'ev08', title: 'Roda de leitura e conversa', category: 'Cultura', emoji: '', date: at(9, 15), place: 'Biblioteca Municipal', capacity: 30, ageMin: 13, ageMax: 120, description: 'Leitura de trechos e conversa aberta. Não precisa ter lido nada antes.' },
+  { id: 'ev09', title: 'Feira de profissões', category: 'Educação', emoji: '', date: at(12, 9), place: 'Centro Cultural', capacity: 150, ageMin: 13, ageMax: 24, description: 'Conheça cursos técnicos e universitários e converse com profissionais.' },
+  { id: 'ev10', title: 'Piquenique e brincadeiras', category: 'Lazer', emoji: '', date: at(10, 10), place: 'Parque Municipal', capacity: 80, ageMin: 7, ageMax: 12, description: 'Brincadeiras dirigidas, gincana e lanche coletivo.' }
+]
+
+const LGPD_VERSION = '1.0'
+
+const LGPD_TEXT = [
+  ['1. Quem somos', 'O Connecta Pinhais é um aplicativo para divulgação de eventos e atividades comunitárias do município. O controlador dos dados é a Prefeitura Municipal de Pinhais.'],
+  ['2. Dados que coletamos', 'Nome, CPF, RG (opcional), data de nascimento, e-mail, telefone, endereço e senha (guardada de forma protegida). Para menores de 18 anos, coletamos também nome, CPF, telefone e e-mail do responsável legal.'],
+  ['3. Para que usamos', 'Para criar sua conta, permitir inscrição em eventos, adaptar a aparência do app à sua faixa etária, enviar avisos sobre as atividades em que você se inscreveu e, no caso de menores, informar o responsável.'],
+  ['4. Base legal', 'Consentimento (Art. 7º, I e Art. 14, §1º da Lei 13.709/2018) e execução de políticas públicas municipais (Art. 7º, III). Para menores, o consentimento é dado pelo responsável legal.'],
+  ['5. Compartilhamento', 'Os dados podem ser compartilhados com a Prefeitura de Pinhais para organização dos eventos. Não vendemos nem cedemos dados a terceiros para publicidade.'],
+  ['6. Tempo de guarda', 'Mantemos os dados enquanto a conta estiver ativa. Ao excluir a conta, os dados pessoais são apagados, exceto quando a lei exigir a guarda.'],
+  ['7. Seus direitos (Art. 18)', 'Você pode confirmar a existência de tratamento, acessar, corrigir, portar e eliminar seus dados, além de revogar este consentimento a qualquer momento. No app, a tela Perfil permite baixar seus dados e excluir a conta.'],
+  ['8. Contato do encarregado (DPO)', 'dpo@pinhais.pr.gov.br'],
+  ['9. Aceite', 'Ao rolar até o fim e clicar em "Aceito", você declara ter lido e concordado com este termo (versão ' + LGPD_VERSION + '). O aceite é registrado com data e hora.']
+]
+
+// "Backend" local: guarda tudo no localStorage do navegador, com as mesmas
+// operações que uma API real teria. Para integrar um servidor de verdade,
+// troque o corpo de cada método por um fetch() — a interface do app não muda.
+const KEY = 'connecta_pinhais_db_v2'
+const empty = () => ({ users: [], consents: [], registrations: [], session: null })
+
+function load() {
+  try {
+    const db = JSON.parse(localStorage.getItem(KEY))
+    return db && Array.isArray(db.users) ? { ...empty(), ...db } : empty()
+  } catch {
+    return empty()
+  }
+}
+const save = (db) => localStorage.setItem(KEY, JSON.stringify(db))
+const wait = (ms = 200) => new Promise((r) => setTimeout(r, ms))
+const uid = (p) => `${p}_${Date.now().toString(36)}${Math.random().toString(36).slice(2, 8)}`
+const onlyDigits = (s) => String(s || '').replace(/\D/g, '')
+
+async function hash(text) {
+  if (globalThis.crypto?.subtle) {
+    const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text))
+    return [...new Uint8Array(buf)].map((b) => b.toString(16).padStart(2, '0')).join('')
+  }
+  return btoa(unescape(encodeURIComponent(text))) // fallback simples (apenas demo)
+}
+
+const publicUser = ({ password, ...u }) => u
+
+const Api = {
+  async currentUser() {
+    const db = load()
+    const u = db.users.find((x) => x.id === db.session)
+    return u ? publicUser(u) : null
+  },
+
+  async register(data) {
+    await wait()
+    const db = load()
+    const cpf = onlyDigits(data.cpf)
+    const email = data.email.trim().toLowerCase()
+    if (db.users.some((u) => u.cpf === cpf)) throw new Error('Já existe uma conta com este CPF.')
+    if (db.users.some((u) => u.email === email)) throw new Error('Já existe uma conta com este e-mail.')
+    const age = ageFrom(data.birthDate)
+    if (age < MIN_AGE) throw new Error(`O app é para maiores de ${MIN_AGE} anos.`)
+
+    const user = {
+      id: uid('usr'),
+      name: data.name.trim(),
+      cpf,
+      rg: data.rg || '',
+      birthDate: data.birthDate,
+      ageBand: bandFor(age),
+      email,
+      password: await hash(data.password),
+      phone: data.phone || '',
+      cep: data.cep || '',
+      address: data.address || '',
+      number: data.number || '',
+      complement: data.complement || '',
+      neighborhood: data.neighborhood || '',
+      city: 'Pinhais',
+      state: 'PR',
+      guardian: age < 18 ? { ...data.guardian, cpf: onlyDigits(data.guardian.cpf) } : null,
+      createdAt: new Date().toISOString()
+    }
+    db.users.push(user)
+    db.consents.push({
+      id: uid('cns'), userId: user.id, accepted: true, version: LGPD_VERSION,
+      by: age < 18 ? 'responsavel_legal' : 'titular',
+      timestamp: new Date().toISOString(), revokedAt: null
+    })
+    db.session = user.id
+    save(db)
+    return publicUser(user)
+  },
+
+  async login(email, password) {
+    await wait()
+    const db = load()
+    const u = db.users.find((x) => x.email === email.trim().toLowerCase())
+    if (!u || u.password !== (await hash(password))) throw new Error('E-mail ou senha incorretos.')
+    db.session = u.id
+    save(db)
+    return publicUser(u)
+  },
+
+  async logout() {
+    const db = load()
+    db.session = null
+    save(db)
+  },
+
+  async listEvents() {
+    await wait(100)
+    const db = load()
+    const taken = {}
+    db.registrations.filter((r) => !r.cancelledAt).forEach((r) => (taken[r.eventId] = (taken[r.eventId] || 0) + 1))
+    return EVENTS
+      .map((e) => ({ ...e, taken: taken[e.id] || 0 }))
+      .sort((a, b) => new Date(a.date) - new Date(b.date))
+  },
+
+  async myRegistrations(userId) {
+    const db = load()
+    return db.registrations.filter((r) => r.userId === userId && !r.cancelledAt)
+  },
+
+  async registerEvent(userId, eventId) {
+    await wait()
+    const db = load()
+    const user = db.users.find((u) => u.id === userId)
+    const ev = EVENTS.find((e) => e.id === eventId)
+    if (!user || !ev) throw new Error('Evento ou usuário não encontrado.')
+    const age = ageFrom(user.birthDate)
+    if (age < ev.ageMin || age > ev.ageMax) throw new Error('Este evento não é indicado para a sua idade.')
+    const active = db.registrations.filter((r) => r.eventId === eventId && !r.cancelledAt)
+    if (active.some((r) => r.userId === userId)) throw new Error('Você já está inscrito neste evento.')
+    if (active.length >= ev.capacity) throw new Error('As vagas deste evento acabaram.')
+    db.registrations.push({
+      id: uid('reg'), userId, eventId, eventTitle: ev.title,
+      registeredAt: new Date().toISOString(), cancelledAt: null
+    })
+    save(db)
+  },
+
+  async cancelRegistration(userId, eventId) {
+    await wait()
+    const db = load()
+    const r = db.registrations.find((x) => x.userId === userId && x.eventId === eventId && !x.cancelledAt)
+    if (r) r.cancelledAt = new Date().toISOString()
+    save(db)
+  },
+
+  async exportData(userId) {
+    const db = load()
+    const user = db.users.find((u) => u.id === userId)
+    return {
+      exportadoEm: new Date().toISOString(),
+      usuario: user ? publicUser(user) : null,
+      consentimentos: db.consents.filter((c) => c.userId === userId),
+      inscricoes: db.registrations.filter((r) => r.userId === userId)
+    }
+  },
+
+  async deleteAccount(userId) {
+    await wait()
+    const db = load()
+    db.users = db.users.filter((u) => u.id !== userId)
+    db.registrations = db.registrations.filter((r) => r.userId !== userId)
+    db.consents = db.consents.filter((c) => c.userId !== userId)
+    db.session = null
+    save(db)
+  }
+}
+
+const todayISO = () => new Date().toISOString().slice(0, 10)
+const ageRange = (e) => (e.ageMax >= 100 ? `${e.ageMin}+ anos` : `${e.ageMin} a ${e.ageMax} anos`)
+
+/* ───────────── Campos e avisos ───────────── */
+function Field({ label, children }) {
+  return (
+    <label className="field">
+      <span>{label}</span>
+      {children}
+    </label>
+  )
+}
+
+function Toast({ msg }) {
+  return msg ? <div className="toast" role="status">{msg}</div> : null
+}
+
+/* ───────────── Termo LGPD ───────────── */
+function LgpdModal({ minor, busy, onAccept, onCancel }) {
+  const box = useRef(null)
+  const [done, setDone] = useState(false)
+
+  const check = () => {
+    const el = box.current
+    if (el && el.scrollTop + el.clientHeight >= el.scrollHeight - 4) setDone(true)
+  }
+  useEffect(check, [])
+
+  return (
+    <div className="overlay" role="dialog" aria-modal="true" aria-labelledby="lgpd-title">
+      <div className="modal">
+        <h2 id="lgpd-title">Termo de consentimento (LGPD)</h2>
+        {minor && <p className="note">Você é menor de 18 anos: quem aceita este termo é o responsável legal informado no cadastro.</p>}
+        <div className="terms" ref={box} onScroll={check} tabIndex={0}>
+          {LGPD_TEXT.map(([t, p]) => (
+            <section key={t}><h3>{t}</h3><p>{p}</p></section>
+          ))}
+        </div>
+        {!done && <p className="hint">Role até o fim para liberar o botão “Aceito”.</p>}
+        <div className="row">
+          <button className="btn ghost" onClick={onCancel} disabled={busy}>Voltar</button>
+          <button className="btn" onClick={onAccept} disabled={!done || busy}>
+            {busy ? 'Criando conta…' : 'Aceito'}
+          </button>
+        </div>
+        <small>Versão do termo: {LGPD_VERSION}</small>
+      </div>
+    </div>
+  )
+}
+
+/* ───────────── Log cadastro ───────────── */
+const blank = {
+  name: '', cpf: '', rg: '', birthDate: '', email: '', password: '', phone: '',
+  cep: '', address: '', number: '', complement: '', neighborhood: '',
+  guardian: { name: '', cpf: '', phone: '', email: '' }
+}
+
+function validate(f) {
+  if (f.name.trim().length < 3) return 'Informe seu nome completo.'
+  if (!validCPF(f.cpf)) return 'CPF inválido. Confira os números.'
+  if (!f.birthDate) return 'Informe sua data de nascimento.'
+  const age = ageFrom(f.birthDate)
+  if (f.birthDate > todayISO() || age > 120) return 'Data de nascimento inválida.'
+  if (age < MIN_AGE) return `O app é para maiores de ${MIN_AGE} anos.`
+  if (!validEmail(f.email)) return 'E-mail inválido.'
+  if (f.password.length < 6) return 'A senha precisa ter pelo menos 6 caracteres.'
+  if (age < 18) {
+    const g = f.guardian
+    if (g.name.trim().length < 3) return 'Informe o nome do responsável legal.'
+    if (!validCPF(g.cpf)) return 'CPF do responsável inválido.'
+    if (g.cpf.replace(/\D/g, '') === f.cpf.replace(/\D/g, '')) return 'O CPF do responsável deve ser diferente do seu.'
+    if (g.phone.replace(/\D/g, '').length < 10) return 'Informe o telefone do responsável.'
+    if (!validEmail(g.email)) return 'E-mail do responsável inválido.'
+  }
+  return ''
+}
+
+function Auth({ onDone }) {
+  const [mode, setMode] = useState('login')
+  const [error, setError] = useState('')
+  const [busy, setBusy] = useState(false)
+  const [login, setLogin] = useState({ email: '', password: '' })
+  const [f, setF] = useState(blank)
+  const [term, setTerm] = useState(false)
+
+  const set = (k) => (e) => setF({ ...f, [k]: e.target.value })
+  const setMasked = (k, fn) => (e) => setF({ ...f, [k]: fn(e.target.value) })
+  const setG = (k, fn = (v) => v) => (e) => setF({ ...f, guardian: { ...f.guardian, [k]: fn(e.target.value) } })
+
+  const age = f.birthDate ? ageFrom(f.birthDate) : null
+  const minor = age !== null && age >= MIN_AGE && age < 18
+
+  const switchMode = (m) => { setMode(m); setError('') }
+
+  const doLogin = async (e) => {
+    e.preventDefault()
+    setBusy(true); setError('')
+    try { onDone(await Api.login(login.email, login.password)) }
+    catch (err) { setError(err.message); setBusy(false) }
+  }
+
+  const askTerm = (e) => {
+    e.preventDefault()
+    const msg = validate(f)
+    setError(msg)
+    if (!msg) setTerm(true)
+  }
+
+  const doRegister = async () => {
+    setBusy(true)
+    try { onDone(await Api.register(f)) }
+    catch (err) { setTerm(false); setError(err.message); setBusy(false) }
+  }
+
+  const lookupCep = async () => {
+    const cep = f.cep.replace(/\D/g, '')
+    if (cep.length !== 8) return
+    try {
+      const r = await fetch(`https://viacep.com.br/ws/${cep}/json/`)
+      const d = await r.json()
+      if (!d.erro) setF((p) => ({ ...p, address: d.logradouro || p.address, neighborhood: d.bairro || p.neighborhood }))
+    } catch { /* sem internet: o usuário preenche à mão */ }
+  }
+
+  return (
+    <main className="auth">
+      <header className="brand">
+        <h1>Connecta Pinhais</h1>
+        <p>Eventos e atividades para toda a comunidade.</p>
+      </header>
+
+      <div className="tabs" role="tablist">
+        <button role="tab" aria-selected={mode === 'login'} onClick={() => switchMode('login')}>Entrar</button>
+        <button role="tab" aria-selected={mode === 'register'} onClick={() => switchMode('register')}>Criar conta</button>
+      </div>
+
+      {mode === 'login' ? (
+        <form className="card form" onSubmit={doLogin}>
+          <Field label="E-mail">
+            <input type="email" autoComplete="email" required value={login.email} onChange={(e) => setLogin({ ...login, email: e.target.value })} />
+          </Field>
+          <Field label="Senha">
+            <input type="password" autoComplete="current-password" required value={login.password} onChange={(e) => setLogin({ ...login, password: e.target.value })} />
+          </Field>
+          {error && <p className="error" role="alert">{error}</p>}
+          <button className="btn" disabled={busy}>{busy ? 'Entrando…' : 'Entrar'}</button>
+        </form>
+      ) : (
+        <form className="card form" onSubmit={askTerm} noValidate>
+          <Field label="Nome completo"><input value={f.name} onChange={set('name')} autoComplete="name" /></Field>
+          <div className="grid2">
+            <Field label="CPF"><input inputMode="numeric" value={f.cpf} onChange={setMasked('cpf', maskCPF)} placeholder="000.000.000-00" /></Field>
+            <Field label="RG (opcional)"><input value={f.rg} onChange={set('rg')} /></Field>
+          </div>
+          <Field label="Data de nascimento">
+            <input type="date" max={todayISO()} value={f.birthDate} onChange={set('birthDate')} />
+          </Field>
+          {age !== null && age >= MIN_AGE && age <= 120 && (
+            <p className="note">Tema do app para você: {BANDS[bandFor(age)]}</p>
+          )}
+          <Field label="E-mail"><input type="email" value={f.email} onChange={set('email')} autoComplete="email" /></Field>
+          <Field label="Senha (mín. 6 caracteres)"><input type="password" value={f.password} onChange={set('password')} autoComplete="new-password" /></Field>
+          <Field label="Telefone (opcional)"><input inputMode="tel" value={f.phone} onChange={setMasked('phone', maskPhone)} placeholder="(41) 90000-0000" /></Field>
+
+          <div className="grid2">
+            <Field label="CEP (opcional)"><input inputMode="numeric" value={f.cep} onChange={setMasked('cep', maskCEP)} onBlur={lookupCep} placeholder="00000-000" /></Field>
+            <Field label="Bairro"><input value={f.neighborhood} onChange={set('neighborhood')} /></Field>
+          </div>
+          <div className="grid2 wide">
+            <Field label="Rua"><input value={f.address} onChange={set('address')} /></Field>
+            <Field label="Nº"><input value={f.number} onChange={set('number')} /></Field>
+          </div>
+
+          {minor && (
+            <fieldset>
+              <legend>Responsável legal (obrigatório)</legend>
+              <Field label="Nome do responsável"><input value={f.guardian.name} onChange={setG('name')} /></Field>
+              <div className="grid2">
+                <Field label="CPF do responsável"><input inputMode="numeric" value={f.guardian.cpf} onChange={setG('cpf', maskCPF)} /></Field>
+                <Field label="Telefone"><input inputMode="tel" value={f.guardian.phone} onChange={setG('phone', maskPhone)} /></Field>
+              </div>
+              <Field label="E-mail do responsável"><input type="email" value={f.guardian.email} onChange={setG('email')} /></Field>
+            </fieldset>
+          )}
+
+          {error && <p className="error" role="alert">{error}</p>}
+          <button className="btn">Continuar</button>
+        </form>
+      )}
+
+      {term && <LgpdModal minor={minor} busy={busy} onAccept={doRegister} onCancel={() => setTerm(false)} />}
+    </main>
+  )
+}
+
+/* ───────────── telas do app ───────────── */
+function EventCard({ ev, registered, fits, onOpen }) {
+  const left = ev.capacity - ev.taken
+  return (
+    <button className={`card event ${fits ? '' : 'dim'}`} onClick={() => onOpen(ev.id)}>
+      <span className="emoji" aria-hidden="true">{ev.emoji}</span>
+      <span className="info">
+        <strong>{ev.title}</strong>
+        <span>{fmtDate(ev.date)}</span>
+        <span>{ev.place}</span>
+        <span className="tags">
+          <i>{ev.category}</i>
+          <i>{ageRange(ev)}</i>
+          {registered && <i className="ok">Inscrito</i>}
+          {!fits && <i className="warn">Fora da sua idade</i>}
+          {fits && left <= 0 && <i className="warn">Esgotado</i>}
+          {fits && left > 0 && left <= 5 && <i className="warn">{left} vagas</i>}
+        </span>
+      </span>
+    </button>
+  )
+}
+
+function Home({ events, regs, age, onOpen }) {
+  const [q, setQ] = useState('')
+  const [cat, setCat] = useState('Todos')
+  const ids = new Set(regs.map((r) => r.eventId))
+  const list = events.filter((e) =>
+    (cat === 'Todos' || e.category === cat) &&
+    (e.title + ' ' + e.place).toLowerCase().includes(q.trim().toLowerCase())
+  )
+  return (
+    <>
+      <input className="search" type="search" placeholder="Buscar evento ou local" value={q} onChange={(e) => setQ(e.target.value)} aria-label="Buscar evento" />
+      <div className="chips" role="group" aria-label="Categorias">
+        {CATEGORIES.map((c) => (
+          <button key={c} className={c === cat ? 'chip on' : 'chip'} onClick={() => setCat(c)}>{c}</button>
+        ))}
+      </div>
+      {list.length === 0 && <p className="empty">Nenhum evento encontrado. Tente outra categoria ou palavra.</p>}
+      {list.map((e) => (
+        <EventCard key={e.id} ev={e} registered={ids.has(e.id)} fits={age >= e.ageMin && age <= e.ageMax} onOpen={onOpen} />
+      ))}
+    </>
+  )
+}
+
+function EventDetail({ ev, registered, user, age, onBack, onChange, notify }) {
+  const [busy, setBusy] = useState(false)
+  const fits = age >= ev.ageMin && age <= ev.ageMax
+  const full = ev.taken >= ev.capacity
+
+  const act = async (fn, okMsg) => {
+    setBusy(true)
+    try { await fn(); await onChange(); notify(okMsg) }
+    catch (e) { notify(e.message) }
+    setBusy(false)
+  }
+
+  return (
+    <article className="card detail">
+      <button className="link" onClick={onBack}>← Voltar</button>
+      <h2><span aria-hidden="true">{ev.emoji}</span> {ev.title}</h2>
+      <dl>
+        <dt>Quando</dt><dd>{fmtDate(ev.date)}</dd>
+        <dt>Onde</dt><dd>{ev.place}</dd>
+        <dt>Indicado para</dt><dd>{ageRange(ev)}</dd>
+        <dt>Vagas</dt><dd>{Math.max(ev.capacity - ev.taken, 0)} de {ev.capacity}</dd>
+      </dl>
+      <p>{ev.description}</p>
+      {user.guardian && <p className="note">Por ser menor de idade, seu responsável ({user.guardian.name}) será informado sobre a inscrição.</p>}
+      {registered ? (
+        <button className="btn danger" disabled={busy} onClick={() => act(() => Api.cancelRegistration(user.id, ev.id), 'Inscrição cancelada.')}>Cancelar inscrição</button>
+      ) : (
+        <button className="btn" disabled={busy || !fits || full} onClick={() => act(() => Api.registerEvent(user.id, ev.id), 'Inscrição confirmada!')}>
+          {!fits ? 'Fora da sua faixa de idade' : full ? 'Vagas esgotadas' : 'Inscrever-me'}
+        </button>
+      )}
+    </article>
+  )
+}
+
+function Mine({ events, regs, onOpen }) {
+  const items = regs.map((r) => events.find((e) => e.id === r.eventId)).filter(Boolean)
+  if (!items.length) return <p className="empty">Você ainda não tem inscrições. Escolha um evento na aba Eventos.</p>
+  return items.map((e) => <EventCard key={e.id} ev={e} registered fits onOpen={onOpen} />)
+}
+
+function Profile({ user, age, onLogout, onDelete, onExport }) {
+  const rows = [
+    ['Nome', user.name], ['E-mail', user.email], ['Nascimento', user.birthDate.split('-').reverse().join('/')],
+    ['Idade', `${age} anos`], ['Tema', BANDS[bandFor(age)]], ['Telefone', user.phone || '—'],
+    ['Endereço', [user.address, user.number, user.neighborhood].filter(Boolean).join(', ') || '—']
+  ]
+  return (
+    <section className="card detail">
+      <h2>Meu perfil</h2>
+      <dl>{rows.map(([k, v]) => <div key={k} className="pair"><dt>{k}</dt><dd>{v}</dd></div>)}</dl>
+      {user.guardian && <p className="note">Responsável legal: {user.guardian.name}</p>}
+      <h3>Meus dados (LGPD)</h3>
+      <p>Você pode baixar uma cópia dos seus dados ou excluir sua conta e tudo que está ligado a ela.</p>
+      <div className="stack">
+        <button className="btn ghost" onClick={onExport}>Baixar meus dados</button>
+        <button className="btn ghost" onClick={onLogout}>Sair</button>
+        <button className="btn danger" onClick={onDelete}>Excluir minha conta</button>
+      </div>
+    </section>
+  )
+}
+
+/* ───────────── App ───────────── */
+function App() {
+  const [user, setUser] = useState(null)
+  const [ready, setReady] = useState(false)
+  const [tab, setTab] = useState('home')
+  const [eventId, setEventId] = useState(null)
+  const [events, setEvents] = useState([])
+  const [regs, setRegs] = useState([])
+  const [toast, setToast] = useState('')
+
+  const notify = (m) => { setToast(m); setTimeout(() => setToast(''), 3200) }
+  const age = user ? ageFrom(user.birthDate) : 30
+  const theme = user ? bandFor(age) : 'adulto'
+
+  useEffect(() => { Api.currentUser().then((u) => { setUser(u); setReady(true) }) }, [])
+  useEffect(() => { document.documentElement.dataset.theme = theme }, [theme])
+
+  const refresh = async (u = user) => {
+    if (!u) return
+    const [ev, rg] = await Promise.all([Api.listEvents(), Api.myRegistrations(u.id)])
+    setEvents(ev); setRegs(rg)
+  }
+  useEffect(() => { refresh() }, [user]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  const go = (t) => { setTab(t); setEventId(null) }
+  const logout = async () => { await Api.logout(); setUser(null); setTab('home'); setEventId(null) }
+  const del = async () => {
+    if (!window.confirm('Excluir sua conta e todos os seus dados? Isso não pode ser desfeito.')) return
+    await Api.deleteAccount(user.id)
+    setUser(null); setTab('home'); setEventId(null)
+  }
+  const exportData = async () => {
+    const data = await Api.exportData(user.id)
+    const url = URL.createObjectURL(new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' }))
+    const a = Object.assign(document.createElement('a'), { href: url, download: 'meus-dados-connecta-pinhais.json' })
+    a.click()
+    URL.revokeObjectURL(url)
+  }
+
+  if (!ready) return <p className="empty">Carregando…</p>
+  if (!user) return <><Auth onDone={setUser} /><Toast msg={toast} /></>
+
+  const ev = events.find((e) => e.id === eventId)
+  const registered = regs.some((r) => r.eventId === eventId)
+
+  return (
+    <div className="app">
+      <header className="top">
+        <h1>Connecta Pinhais</h1>
+        <p>Olá, {user.name.split(' ')[0]}</p>
+      </header>
+
+      <main className="content">
+        {ev ? (
+          <EventDetail ev={ev} registered={registered} user={user} age={age} onBack={() => setEventId(null)} onChange={() => refresh()} notify={notify} />
+        ) : tab === 'home' ? (
+          <Home events={events} regs={regs} age={age} onOpen={setEventId} />
+        ) : tab === 'mine' ? (
+          <Mine events={events} regs={regs} onOpen={setEventId} />
+        ) : (
+          <Profile user={user} age={age} onLogout={logout} onDelete={del} onExport={exportData} />
+        )}
+      </main>
+
+      <nav className="nav" aria-label="Principal">
+        {[['home', '', 'Eventos'], ['mine', '', 'Inscrições'], ['profile', '', 'Perfil']].map(([k, i, l]) => (
+          <button key={k} aria-current={tab === k && !ev ? 'page' : undefined} onClick={() => go(k)}>
+            <span aria-hidden="true">{i}</span>{l}
+          </button>
+        ))}
+      </nav>
+      <Toast msg={toast} />
+    </div>
+  )
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />)
+
+</script>
+</body>
+</html>
