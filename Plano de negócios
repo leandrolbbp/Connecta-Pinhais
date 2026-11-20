@@ -1,0 +1,55 @@
+Plano de Negócios: Connecta Pinhais
+1. Visão Geral do Projeto
+O Connecta Pinhais é uma plataforma digital comunitária e inclusiva desenvolvida para centralizar a divulgação de eventos, atividades de lazer, saúde, cultura e educação do município de Pinhais. O sistema evoluiu a partir do protótipo inicial Connecta Senior, expandindo seu escopo para atender a população em geral, adaptando a experiência de uso dinamicamente de acordo com a faixa etária do cidadão.
+
+O programa funciona como uma aplicação web híbrida (instalável via navegador) com arquitetura responsiva, promovendo a integração entre a comunidade local e os serviços prestados pela prefeitura e parceiros municipais.
+
+2. Proposta de Valor e Impacto Social
+Inclusão Digital e Acessibilidade: Interface com adaptação visual automática (fontes, contraste, temas e tamanhos) orientada à faixa etária do usuário (Crianças, Adolescentes, Adultos e Sênior).
+
+Centralização Comunitária: Um canal único para consulta de agenda de eventos municipais, agendamento de serviços de saúde, feiras e atividades culturais/esportivas.
+
+Conformidade Legal e Transparência: Coleta de consentimento estruturada e transparente, alinhada às exigências da LGPD (Lei Geral de Proteção de Dados), contemplando regras específicas para o tratamento de dados de menores de idade com validação de responsáveis legais.
+
+3. Modelo de Funcionalidades e Status do Protótipo
+Funcionalidades Operacionais e Mocks Testados
+Interface Base: Estrutura responsiva com navegação dividida em Home (Eventos), Minhas Inscrições, Saúde/Atividades e Perfil.
+
+Gerenciador Visual e Adaptação Distinta: Ajuste dinâmico de layout, fontes e esquemas de cores com base na data de nascimento (faixas: Criança, Adolescente, Adulto e Sênior).
+
+Validação de Formulários: Validação em tempo real de dados de cadastro (CPF com cálculo de dígitos verificadores, e-mail, telefone, CEP com preenchimento automático via API e dados de responsável legal).
+
+Notificações Locais: Gerenciador interno de lembretes e avisos ativado durante a navegação web.
+
+Visualização Espacial: Estrutura para exibição de eventos, mapas e rotas de atividades locais.
+
+Módulo LGPD e Segurança: Modal interativo de termos com verificação de rolagem completa, geração de aceite auditável com marca temporal, exportação de dados em JSON e opção de exclusão definitiva da conta.
+
+Desafios e Limitações Atuais (Roadmap de Refinamento)
+Integração com Órgãos Públicos: Atualmente, os dados de eventos e agendas são inseridos via prévia manual/simulada, pendente de integração oficial com as bases de dados da Prefeitura de Pinhais.
+
+Empacotamento Mobile (APK): A compilação nativa (APK) via navegador apresentou falhas de build e foi temporariamente desativada; a aplicação opera com foco total na versão WEB responsiva.
+
+Persistência de Dados e Autenticação: A versão atual executa um backend simplificado armazenado localmente no cliente (localStorage e cookies).
+
+Serviços de UX e Mapas: Utilização pontual de APIs e repositórios gratuitos para a renderização de mapas e calendários.
+
+4. Requisitos de Infraestrutura e Escalabilidade Futura
+Para a transição da fase de protótipo para a implantação oficial em escala municipal, o plano de desenvolvimento prevê:
+
+Infraestrutura Backend: Implementação de servidor dedicado com banco de dados relacional e APIs RESTful para centralização dos dados.
+
+Sistema de Autenticação Centralizado: Integração com provedores oficiais de identidade (como Gov.br ou chave de autenticação da prefeitura) e licenças para autenticadores seguros.
+
+APIs Proprietárias de Geolocalização: Substituição das ferramentas gratuitas por licenças comerciais de mapas (ex: Google Maps API ou Mapbox) para mitigar inconsistências na busca de rotas.
+
+Empacotamento Mobile Responsivo: Correção do pipeline de compilação híbrida (Capacitor/PWA) para disponibilização do aplicativo instalável em lojas de aplicativos e download direto.
+
+5. Público-Alvo e Segmentação
+Crianças (7 a 12 anos): Foco em oficinas de arte, atividades infantis e lazer; interface lúdica com tipografia Nunito e maior espaçamento.
+
+Adolescentes (13 a 17 anos): Foco em campeonatos esportivos, feiras de profissões e eventos culturais; interface com estilo escuro/neon e tipografia Rajdhani.
+
+Adultos (18 a 50 anos): Foco em serviços de saúde, cursos de capacitação e eventos da cidade; interface limpa com tipografia DM Sans.
+
+Sênior (51+ anos): Foco em atividades de hidroginástica, caminhadas e atendimentos de saúde; interface de alto contraste com fontes ampliadas em estilo Lora para facilidade de leitura.
