@@ -1,4 +1,4 @@
- # Connecta-Pinhais
+ # Connecta-Pinhais, Leandro Prado e Luiz Mariano
 Atualizações do projeto: 
 Atualmente o projeto é um protótipo funcional, e obteve uma mudança na intenção do programa
 O mesmo deixou de ser o software connecta senior, e se tornou connecta pinhais, pois agora nossa missão não é somente integrar o pessoal com idade avançada, e sim a população de pinhais em geral
